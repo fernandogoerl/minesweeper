@@ -26,11 +26,13 @@ function App() {
     let createdMap = createMap(gameRows, gameCols);
     let minesLeft = gameParams.mines;
     const baseProbability = gameParams.mines / (gameRows * gameCols);
+    let multiplier = 1;
     while (minesLeft > 0) {
-      [createdMap, minesLeft] = placeMines(
+      [createdMap, minesLeft, multiplier] = placeMines(
         createdMap,
         minesLeft,
-        baseProbability
+        baseProbability,
+        multiplier
       );
     }
   };
@@ -46,38 +48,40 @@ function App() {
   };
 
   const shouldPutMine = (probability) => {
-    return Math.random() * 3 < probability;
+    return Math.random() * gameParams.mines < probability;
   };
 
   const placeMines = (
     createdMap,
     minesToPlace,
     baseProbability,
-    multiplier = 1
+    multiplier
   ) => {
     let mines = minesToPlace;
     let currentMap = createdMap;
     for (let row = 0; row < gameRows; row++) {
       for (let col = 0; col < gameCols; col++) {
-        if (mines > 0) {
-          const probability = baseProbability * multiplier;
-          const hasMine = shouldPutMine(probability);
-          if (hasMine) {
-            currentMap[row][col] = -1;
-            setMinesPos((prevState) => [...prevState, { row, col }]);
-            mines--;
-            multiplier = 1;
+        if (!currentMap[row][col]) {
+          if (mines > 0) {
+            const probability = baseProbability * multiplier;
+            const hasMine = shouldPutMine(probability);
+            if (hasMine) {
+              currentMap[row][col] = -1;
+              setMinesPos((prevState) => [...prevState, { row, col }]);
+              mines--;
+              multiplier = 1;
+            } else {
+              currentMap[row][col] = 0; // checkMinesAround
+              multiplier++;
+            }
           } else {
-            currentMap[row][col] = 0; // checkMinesAround
-            multiplier++;
+            currentMap[row][col] = 0;
           }
-        } else {
-          currentMap[row][col] = 0;
         }
       }
     }
     setGameMap(currentMap);
-    return [currentMap, mines];
+    return [currentMap, mines, multiplier];
   };
 
   // const placeNumbers = () => {
