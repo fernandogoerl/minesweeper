@@ -48,7 +48,11 @@
   align-items: center;
 }
 
-.mines-counter {
+.counter {
+  font-size: 2em;
+}
+
+.mines {
   flex: 1;
   text-align: right;
 }
@@ -66,6 +70,7 @@
   border-radius: 0.5em;
   border: 0.5em solid white;
   transition: background-color 0.1s;
+  cursor: pointer;
 }
 
 .new-game-btn:hover {
@@ -81,4 +86,19 @@
   align-items: center;
   height: 2em;
   width: 2em;
+}
+
+.icon {
+  height: 2em;
+  width: 2em;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }

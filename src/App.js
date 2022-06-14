@@ -12,9 +12,7 @@ const gameParams = {
 };
 
 function App() {
-  const [gameMap, setGameMap] = useState([]);
-  // eslint-disable-next-line
-  const [minesPos, setMinesPos] = useState([]);
+  const [gameBoard, setGameBoard] = useState([]);
   // eslint-disable-next-line
   const [gameRows, setRows] = useState(gameParams.rows);
   // eslint-disable-next-line
@@ -23,27 +21,31 @@ function App() {
 
   const initGame = () => {
     setMines(gameParams.mines);
-    let createdMap = createMap(gameRows, gameCols);
+    let board = createBoard(gameRows, gameCols);
+    let minePosList = [];
     let minesLeft = gameParams.mines;
     const baseProbability = gameParams.mines / (gameRows * gameCols);
     let multiplier = 1;
     while (minesLeft > 0) {
-      [createdMap, minesLeft, multiplier] = placeMines(
-        createdMap,
+      [board, minePosList, minesLeft, multiplier] = placeMines(
+        board,
+        minePosList,
         minesLeft,
         baseProbability,
         multiplier
       );
     }
+    board = placeNumbers(board, minePosList);
+    setGameBoard(board);
   };
 
-  const createMap = (rows, cols) => {
+  const createBoard = (rows, cols) => {
     const newMap = [];
     for (let row = 0; row < rows; row++) {
       const newRow = new Array(cols);
       newMap.push(newRow);
     }
-    setGameMap(newMap);
+    setGameBoard(newMap);
     return newMap;
   };
 
@@ -52,76 +54,129 @@ function App() {
   };
 
   const placeMines = (
-    createdMap,
+    board,
+    minePosList,
     minesToPlace,
     baseProbability,
     multiplier
   ) => {
     let mines = minesToPlace;
-    let currentMap = createdMap;
+    let currentBoard = board;
     for (let row = 0; row < gameRows; row++) {
       for (let col = 0; col < gameCols; col++) {
-        if (!currentMap[row][col]) {
+        if (!currentBoard[row][col]) {
           if (mines > 0) {
             const probability = baseProbability * multiplier;
             const hasMine = shouldPutMine(probability);
             if (hasMine) {
-              currentMap[row][col] = -1;
-              setMinesPos((prevState) => [...prevState, { row, col }]);
+              currentBoard[row][col] = -1;
+              minePosList.push({ row, col });
               mines--;
               multiplier = 1;
             } else {
-              currentMap[row][col] = 0; // checkMinesAround
+              currentBoard[row][col] = 0;
               multiplier++;
             }
           } else {
-            currentMap[row][col] = 0;
+            currentBoard[row][col] = 0;
           }
         }
       }
     }
-    setGameMap(currentMap);
-    return [currentMap, mines, multiplier];
+    setGameBoard(currentBoard);
+    return [currentBoard, minePosList, mines, multiplier];
   };
 
-  // const placeNumbers = () => {
-  //   minesPos.forEach((position) => {
-  //     if (position.row === 0) {
-  //       placeNumberCurrentRow();
-  //       placeNumberNextRow();
-  //     } else if (position.row === rows) {
-  //       placeNumberPrevRow();
-  //       placeNumberCurrentRow();
-  //     } else {
-  //       placeNumberPrevRow();
-  //       placeNumberCurrentRow();
-  //       placeNumberNextRow();
-  //     }
-  //   });
-  // };
+  const placeNumbers = (board, minePosList) => {
+    minePosList.forEach((position) => {
+      if (position.row === 0) {
+        board = placeNumberNextRow(board, position);
+      } else if (position.row === gameRows - 1) {
+        board = placeNumberPrevRow(board, position);
+      } else {
+        board = placeNumberPrevRow(board, position);
+        board = placeNumberNextRow(board, position);
+      }
+      board = placeNumberCurrentRow(board, position);
+    });
+    setGameBoard(board);
+    return board;
+  };
 
-  // const placeNumber
+  const placeNumberPrevRow = (board, position) => {
+    let row = position.row - 1;
+    for (
+      let cellPos = position.col - 1;
+      cellPos <= position.col + 1;
+      cellPos++
+    ) {
+      board = placeNumberOnBoard(board, row, cellPos);
+    }
+    return board;
+  };
+
+  const placeNumberCurrentRow = (board, position) => {
+    let row = position.row;
+    for (
+      let cellPos = position.col - 1;
+      cellPos <= position.col + 1;
+      cellPos++
+    ) {
+      board = placeNumberOnBoard(board, row, cellPos);
+    }
+    return board;
+  };
+
+  const placeNumberNextRow = (board, position) => {
+    let row = position.row + 1;
+    for (
+      let cellPos = position.col - 1;
+      cellPos <= position.col + 1;
+      cellPos++
+    ) {
+      board = placeNumberOnBoard(board, row, cellPos);
+    }
+    return board;
+  };
+
+  const placeNumberOnBoard = (board, row, col) => {
+    if (col >= 0 && col < gameParams.cols) {
+      console.log(row, col, board[row][col]);
+      let currentCellValue = board[row][col];
+      let newCellValue = checkForMine(board[row][col]);
+      board[row][col] = newCellValue;
+    }
+    return board;
+  };
+
+  const checkForMine = (value) => {
+    return value !== -1 ? ++value : value;
+  };
 
   return (
-    <div className='App'>
+    <div className='App noselect'>
       <header className='App-header'>
         <img src={mine} className='App-logo' alt='logo' />
         <h2>Minesweeper</h2>
       </header>
       <article>
         <div className='row game-header'>
-          <div className='mines-counter'>{mines}</div>
+          <div className='mines counter'>{mines}</div>
           <div type='button' className='new-game-btn' onClick={initGame}>
             New Game
           </div>
-          <div className='timer'>{gameParams.timer}</div>
+          <div className='timer counter'>{gameParams.timer}</div>
         </div>
         <div className='game-body'>
-          {gameMap.map((row, i) => (
+          {gameBoard.map((row, i) => (
             <div className='row' key={'row_' + i}>
               {row.map((cell, i) => (
                 <div className='cell' key={'cell_' + i}>
-                  {cell}
+                  {cell === -1 ? (
+                    <img src={mine} className='icon' alt='logo' />
+                  ) : (
+                    cell
+                  )}
                 </div>
               ))}
             </div>
