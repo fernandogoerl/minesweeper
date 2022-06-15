@@ -194,8 +194,7 @@ function App() {
     return clickBoard[row][col];
   };
 
-  const handleClick = (row, col) => {
-    console.log(clickBoard[row][col], gameBoard[row][col]);
+  const handleClick = (row, col) => {    
     let board = clickBoard;
     board[row][col] = true;
     setClickBoard([...board]);
@@ -260,11 +259,11 @@ function App() {
           {gameBoard.map((row, rowPos) => (
             <div className='row game-row' key={'row_' + rowPos}>
               {row.map((col, colPos) => (
-                <div className='col' key={'col_' + colPos} 
-                    onClick={() => handleClick(rowPos, colPos)}>
+                <div className='col' key={'col_' + colPos}>
                 {!clickBoard[rowPos][colPos]
                 ? (<div
                     className='closedCell'
+                    onClick={() => handleClick(rowPos, colPos)}
                   >
                     &nbsp;
                   </div>)
