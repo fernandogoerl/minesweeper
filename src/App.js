@@ -14,6 +14,7 @@ const gameParams = {
 function App() {
   const [gameOn, setGameOn] = useState(false);
   const [gameBoard, setGameBoard] = useState([]);
+  const [clickBoard, setClickBoard] = useState([]);
   // eslint-disable-next-line
   const [gameRows, setGameRows] = useState(0);
   // eslint-disable-next-line
@@ -25,6 +26,8 @@ function App() {
     if (gameRows && gameCols && mines) {
       setShowWarning(false);
       let board = createBoard();
+      let hiddenBoard = hideBoard(board);
+      setClickBoard(hiddenBoard);
       let minePosList = [];
       let minesLeft = mines;
       const baseProbability = mines / (gameRows * gameCols);
@@ -49,12 +52,21 @@ function App() {
   const createBoard = () => {
     const newMap = [];
     for (let row = 0; row < gameRows; row++) {
-      const newRow = new Array(gameCols);
+      const newRow = [];
+      for (let col = 0; col < gameCols; col++) {
+        newRow.push(0);
+      }
       newMap.push(newRow);
     }
     setGameBoard(newMap);
     return newMap;
   };
+
+  const hideBoard = (board) =>
+    board.map((row) => row.map((col) => (col = false)));
+
+  const showBoard = (board) =>
+    board.map((row) => row.map((col) => (col = true)));
 
   const shouldPutMine = (probability) => {
     return Math.random() * mines < probability;
@@ -112,36 +124,24 @@ function App() {
 
   const placeNumberPrevRow = (board, position) => {
     let row = position.row - 1;
-    for (
-      let cellPos = position.col - 1;
-      cellPos <= position.col + 1;
-      cellPos++
-    ) {
-      board = placeNumberOnBoard(board, row, cellPos);
+    for (let colPos = position.col - 1; colPos <= position.col + 1; colPos++) {
+      board = placeNumberOnBoard(board, row, colPos);
     }
     return board;
   };
 
   const placeNumberCurrentRow = (board, position) => {
     let row = position.row;
-    for (
-      let cellPos = position.col - 1;
-      cellPos <= position.col + 1;
-      cellPos++
-    ) {
-      board = placeNumberOnBoard(board, row, cellPos);
+    for (let colPos = position.col - 1; colPos <= position.col + 1; colPos++) {
+      board = placeNumberOnBoard(board, row, colPos);
     }
     return board;
   };
 
   const placeNumberNextRow = (board, position) => {
     let row = position.row + 1;
-    for (
-      let cellPos = position.col - 1;
-      cellPos <= position.col + 1;
-      cellPos++
-    ) {
-      board = placeNumberOnBoard(board, row, cellPos);
+    for (let colPos = position.col - 1; colPos <= position.col + 1; colPos++) {
+      board = placeNumberOnBoard(board, row, colPos);
     }
     return board;
   };
@@ -188,6 +188,17 @@ function App() {
     setGameRows(16);
     setGameCols(30);
     setMines(99);
+  };
+
+  const isHidden = (row, col) => {
+    return clickBoard[row][col];
+  };
+
+  const handleClick = (row, col) => {
+    console.log(clickBoard[row][col], gameBoard[row][col]);
+    let board = clickBoard;
+    board[row][col] = true;
+    setClickBoard([...board]);
   };
 
   return (
@@ -245,18 +256,28 @@ function App() {
           </div>
           <div className='timer counter'>{addZeros(gameParams.timer)}</div>
         </div>
-        <div className={`game-body ${gameOn ? 'show-game' : ''}`}>
-          {gameBoard.map((row, i) => (
-            <div className='row game-row' key={'row_' + i}>
-              {row.map((cell, i) => (
-                <div className='cell' key={'cell_' + i}>
-                  {cell === -1 ? (
-                    <img src={mine} className='icon' alt='logo' />
-                  ) : cell !== 0 ? (
-                    <span className={'color_' + cell}>{cell}</span>
-                  ) : (
-                    ''
-                  )}
+        <div className={`game-body ${gameOn && 'show-game'}`}>
+          {gameBoard.map((row, rowPos) => (
+            <div className='row game-row' key={'row_' + rowPos}>
+              {row.map((col, colPos) => (
+                <div className='col' key={'col_' + colPos} 
+                    onClick={() => handleClick(rowPos, colPos)}>
+                {!clickBoard[rowPos][colPos]
+                ? (<div
+                    className='closedCell'
+                  >
+                    &nbsp;
+                  </div>)
+                : (<div
+                    className='openCell'
+                  >
+                    {col === -1 ? (
+                      <img src={mine} className='icon' alt='logo' />
+                    ) : col !== 0 && (
+                      <span className={'color_' + col}>{col}</span>
+                    )}
+                  </div>)
+                }
                 </div>
               ))}
             </div>

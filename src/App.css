@@ -124,7 +124,7 @@
   opacity: 0;
 }
 
-.game-body > :first-child {
+/* .game-body > :first-child {
   border-top: 0.25em solid white;
 }
 
@@ -134,17 +134,44 @@
 
 .game-row > :first-child {
   border-left: 0.25em solid white;
-}
+} */
 
-.cell {
+.col {
   font-weight: bold;
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 2em;
-  width: 2em;
+  height: 2.5em;
+  width: 2.5em; 
+}
+
+.openCell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border-top: 0.25em solid #595959;
+  border-right: 0.25em solid #595959;
+  border-left: 0.25em solid #7c7c7c;
+  border-bottom: 0.25em solid #7c7c7c; 
+  height: 100%;
+  width: 100%;
+}
+
+.closedCell {  
+  box-sizing: border-box;
+  background-color: #191b1f;
+  border-top: 0.25em solid white;
   border-right: 0.25em solid white;
+  border-left: 0.25em solid #c6c6c6;
+  border-bottom: 0.25em solid #c6c6c6; 
+  height: 100%;
+  width: 100%;
+}
+
+.hide {
+  display: none;
 }
 
 .icon {
