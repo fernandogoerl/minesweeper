@@ -2,17 +2,18 @@
 
 .App {
   text-align: center;
-  background-color: #282c34;
   height: 100vh;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   font-family: 'Bungee', cursive;
+  overflow-y: hidden;
+  background-color: #282c34;
 }
 
-.App-logo {
-  height: 100%;
+.logo {
+  height: 3em;
   pointer-events: none;
   animation: App-logo-spin infinite 20s linear;
 }
@@ -25,20 +26,31 @@
   }
 }
 
-.App-header {
-  margin: 2em;
+.header {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.full-header {
+  margin: 2em;
   font-size: calc(10px + 2vmin);
 }
 
-.game-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.small-header {
+  flex-direction: row;
+  margin: 0.5em;
+  font-size: 1em;
+  transition: all 0.5s;
+}
+
+.small-header > h2 {
+  margin-left: 1em;
 }
 
 .row {
@@ -46,6 +58,32 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.custom-controls > input {
+  background-color: transparent;
+  color: white;
+  font-family: 'Bungee', cursive;
+  border: 0.5em solid white;
+  border-radius: 0.5em;
+  width: 5em;
+  margin: 0 1em;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.custom-controls > input::-webkit-outer-spin-button,
+.custom-controls > input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.custom-controls > input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.custom-controls > .input:focus {
+  outline: none;
 }
 
 .counter {
@@ -78,6 +116,26 @@
   transition: background-color 0.1s;
 }
 
+.game-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+}
+
+.game-body > :first-child {
+  border-top: 0.25em solid white;
+}
+
+.game-row {
+  border-bottom: 0.25em solid white;
+}
+
+.game-row > :first-child {
+  border-left: 0.25em solid white;
+}
+
 .cell {
   font-weight: bold;
   flex: 1;
@@ -86,11 +144,17 @@
   align-items: center;
   height: 2em;
   width: 2em;
+  border-right: 0.25em solid white;
 }
 
 .icon {
   height: 2em;
   width: 2em;
+}
+
+.show-game {
+  opacity: 1;
+  transition: opacity 0.75s;
 }
 
 .noselect {
@@ -101,4 +165,36 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+.color_1 {
+  color: #3a6ad0;
+}
+
+.color_2 {
+  color: green;
+}
+
+.color_3 {
+  color: red;
+}
+
+.color_4 {
+  color: navy;
+}
+
+.color_5 {
+  color: maroon;
+}
+
+.color_6 {
+  color: cadetblue;
+}
+
+.color_7 {
+  color: purple;
+}
+
+.color_8 {
+  color: black;
 }

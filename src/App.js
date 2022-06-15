@@ -5,44 +5,51 @@ import './App.css';
 import React, { useState } from 'react';
 
 const gameParams = {
-  rows: 9,
-  cols: 9,
-  mines: 10,
+  rows: 15,
+  cols: 20,
+  mines: 30,
   timer: 999,
 };
 
 function App() {
+  const [gameOn, setGameOn] = useState(false);
   const [gameBoard, setGameBoard] = useState([]);
   // eslint-disable-next-line
-  const [gameRows, setRows] = useState(gameParams.rows);
+  const [gameRows, setGameRows] = useState(0);
   // eslint-disable-next-line
-  const [gameCols, setCols] = useState(gameParams.cols);
+  const [gameCols, setGameCols] = useState(0);
   const [mines, setMines] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
 
   const initGame = () => {
-    setMines(gameParams.mines);
-    let board = createBoard(gameRows, gameCols);
-    let minePosList = [];
-    let minesLeft = gameParams.mines;
-    const baseProbability = gameParams.mines / (gameRows * gameCols);
-    let multiplier = 1;
-    while (minesLeft > 0) {
-      [board, minePosList, minesLeft, multiplier] = placeMines(
-        board,
-        minePosList,
-        minesLeft,
-        baseProbability,
-        multiplier
-      );
+    if (gameRows && gameCols && mines) {
+      setShowWarning(false);
+      let board = createBoard();
+      let minePosList = [];
+      let minesLeft = mines;
+      const baseProbability = mines / (gameRows * gameCols);
+      let multiplier = 1;
+      while (minesLeft > 0) {
+        [board, minePosList, minesLeft, multiplier] = placeMines(
+          board,
+          minePosList,
+          minesLeft,
+          baseProbability,
+          multiplier
+        );
+      }
+      board = placeNumbers(board, minePosList);
+      setGameBoard(board);
+      setGameOn(true);
+    } else {
+      setShowWarning(true);
     }
-    board = placeNumbers(board, minePosList);
-    setGameBoard(board);
   };
 
-  const createBoard = (rows, cols) => {
+  const createBoard = () => {
     const newMap = [];
-    for (let row = 0; row < rows; row++) {
-      const newRow = new Array(cols);
+    for (let row = 0; row < gameRows; row++) {
+      const newRow = new Array(gameCols);
       newMap.push(newRow);
     }
     setGameBoard(newMap);
@@ -50,7 +57,7 @@ function App() {
   };
 
   const shouldPutMine = (probability) => {
-    return Math.random() * gameParams.mines < probability;
+    return Math.random() * mines < probability;
   };
 
   const placeMines = (
@@ -140,11 +147,8 @@ function App() {
   };
 
   const placeNumberOnBoard = (board, row, col) => {
-    if (col >= 0 && col < gameParams.cols) {
-      console.log(row, col, board[row][col]);
-      let currentCellValue = board[row][col];
-      let newCellValue = checkForMine(board[row][col]);
-      board[row][col] = newCellValue;
+    if (col >= 0 && col < gameCols) {
+      board[row][col] = checkForMine(board[row][col]);
     }
     return board;
   };
@@ -153,29 +157,105 @@ function App() {
     return value !== -1 ? ++value : value;
   };
 
+  const handleRowsChange = (event) => {
+    setGameRows(+event.target.value);
+  };
+
+  const handleColsChange = (event) => {
+    setGameCols(+event.target.value);
+  };
+
+  const handleMinesChange = (event) => {
+    setMines(+event.target.value);
+  };
+
+  const addZeros = (number) => String(number).padStart(3, '0');
+
+  const setGameEasy = () => {
+    // Easy Difficulty
+    setGameRows(9);
+    setGameCols(9);
+    setMines(10);
+  };
+  const setGameMedium = () => {
+    // Medium Difficulty
+    setGameRows(16);
+    setGameCols(16);
+    setMines(40);
+  };
+  const setGameHard = () => {
+    // Hard Difficulty
+    setGameRows(16);
+    setGameCols(30);
+    setMines(99);
+  };
+
   return (
     <div className='App noselect'>
-      <header className='App-header'>
-        <img src={mine} className='App-logo' alt='logo' />
+      <div className='background'></div>
+      <header className={`header ${gameOn ? 'small-header' : 'full-header'}`}>
+        <img src={mine} className='logo' alt='logo' />
         <h2>Minesweeper</h2>
       </header>
       <article>
+        <div className='row custom-controls'>
+          <input
+            type='number'
+            name='rows'
+            id='rows'
+            placeholder='rows'
+            value={gameRows}
+            onChange={handleRowsChange}
+          />
+          <input
+            type='number'
+            name='cols'
+            id='cols'
+            placeholder='cols'
+            value={gameCols}
+            onChange={handleColsChange}
+          />
+          <input
+            type='number'
+            name='mines'
+            id='mines'
+            placeholder='mines'
+            value={mines}
+            onChange={handleMinesChange}
+          />
+        </div>
+        <div className='row difficulty-controls'>
+          <div type='button' className='new-game-btn' onClick={setGameEasy}>
+            Easy
+          </div>
+          <div type='button' className='new-game-btn' onClick={setGameMedium}>
+            Medium
+          </div>
+          <div type='button' className='new-game-btn' onClick={setGameHard}>
+            Hard
+          </div>
+        </div>
+        <div className='warning'>
+          {showWarning ? 'Fill all 3 fields if you want to play!' : ''}
+        </div>
         <div className='row game-header'>
-          <div className='mines counter'>{mines}</div>
+          <div className='mines counter'>{addZeros(mines)}</div>
           <div type='button' className='new-game-btn' onClick={initGame}>
             New Game
           </div>
-          <div className='timer counter'>{gameParams.timer}</div>
+          <div className='timer counter'>{addZeros(gameParams.timer)}</div>
         </div>
-        <div className='game-body'>
+        <div className={`game-body ${gameOn ? 'show-game' : ''}`}>
           {gameBoard.map((row, i) => (
-            <div className='row' key={'row_' + i}>
+            <div className='row game-row' key={'row_' + i}>
               {row.map((cell, i) => (
                 <div className='cell' key={'cell_' + i}>
                   {cell === -1 ? (
                     <img src={mine} className='icon' alt='logo' />
+                  ) : cell !== 0 ? (
+                    <span className={'color_' + cell}>{cell}</span>
                   ) : (
-                    cell
+                    ''
                   )}
                 </div>
               ))}
