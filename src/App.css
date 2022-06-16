@@ -143,7 +143,7 @@
   justify-content: center;
   align-items: center;
   height: 2.5em;
-  width: 2.5em; 
+  width: 2.5em;
 }
 
 .openCell {
@@ -154,18 +154,18 @@
   border-top: 0.25em solid #595959;
   border-right: 0.25em solid #595959;
   border-left: 0.25em solid #7c7c7c;
-  border-bottom: 0.25em solid #7c7c7c; 
+  border-bottom: 0.25em solid #7c7c7c;
   height: 100%;
   width: 100%;
 }
 
-.closedCell {  
+.closedCell {
   box-sizing: border-box;
   background-color: #191b1f;
   border-top: 0.25em solid white;
   border-right: 0.25em solid white;
   border-left: 0.25em solid #c6c6c6;
-  border-bottom: 0.25em solid #c6c6c6; 
+  border-bottom: 0.25em solid #c6c6c6;
   height: 100%;
   width: 100%;
 }
@@ -184,6 +184,10 @@
   transition: opacity 0.75s;
 }
 
+.exploded {
+  background-color: #ff0000;
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -199,29 +203,29 @@
 }
 
 .color_2 {
-  color: green;
+  color: #448b44;
 }
 
 .color_3 {
-  color: red;
+  color: #f33b3b;
 }
 
 .color_4 {
-  color: navy;
+  color: #1d1d9b;
 }
 
 .color_5 {
-  color: maroon;
+  color: #a3491f;
 }
 
 .color_6 {
-  color: cadetblue;
+  color: #47c0c9;
 }
 
 .color_7 {
-  color: purple;
+  color: #924292;
 }
 
 .color_8 {
-  color: black;
+  color: #f1f1f1;
 }

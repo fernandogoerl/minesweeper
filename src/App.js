@@ -5,9 +5,6 @@ import './App.css';
 import React, { useState } from 'react';
 
 const gameParams = {
-  rows: 15,
-  cols: 20,
-  mines: 30,
   timer: 999,
 };
 
@@ -21,6 +18,7 @@ function App() {
   const [gameCols, setGameCols] = useState(0);
   const [mines, setMines] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+  const [clickedMine, setClickedMine] = useState({ row: 0, col: 0 });
 
   const initGame = () => {
     if (gameRows && gameCols && mines) {
@@ -66,9 +64,13 @@ function App() {
     board.map((row) => row.map((col) => (col = false)));
 
   const showBoard = () => {
-    let board = clickBoard;
-    board.map((row) => row.map((col) => (col = true)));
-    setClickBoard(board);
+    let board = [...clickBoard];
+    board.forEach((row, i) => {
+      row.forEach((col, j) => {
+        board[i][j] = true;
+      });
+    });
+    setClickBoard([...board]);
   };
 
   const shouldPutMine = (probability) => {
@@ -176,25 +178,6 @@ function App() {
 
   const addZeros = (number) => String(number).padStart(3, '0');
 
-  const setGameEasy = () => {
-    // Easy Difficulty
-    setGameRows(9);
-    setGameCols(9);
-    setMines(1);
-  };
-  const setGameMedium = () => {
-    // Medium Difficulty
-    setGameRows(16);
-    setGameCols(16);
-    setMines(40);
-  };
-  const setGameHard = () => {
-    // Hard Difficulty
-    setGameRows(16);
-    setGameCols(30);
-    setMines(99);
-  };
-
   const notOutOfBounds = (row, col) => {
     return row >= 0 && row < gameRows && col >= 0 && col < gameCols;
   };
@@ -203,8 +186,9 @@ function App() {
     return rowPos === row && colPos === col;
   };
 
-  const finishGame = () => {
+  const finishGame = (row, col) => {
     showBoard();
+    setClickedMine({ row, col });
   };
 
   const openCell = (row, col) => {
@@ -270,8 +254,27 @@ function App() {
     } else if (!cellHasMine(gameBoard[row][col])) {
       openCell(row, col);
     } else {
-      finishGame();
+      finishGame(row, col);
     }
+  };
+
+  const setGameEasy = () => {
+    // Easy Difficulty
+    setGameRows(9);
+    setGameCols(9);
+    setMines(15);
+  };
+  const setGameMedium = () => {
+    // Medium Difficulty
+    setGameRows(16);
+    setGameCols(16);
+    setMines(40);
+  };
+  const setGameHard = () => {
+    // Hard Difficulty
+    setGameRows(16);
+    setGameCols(30);
+    setMines(99);
   };
 
   return (
@@ -334,15 +337,22 @@ function App() {
             <div className='row game-row' key={'row_' + rowPos}>
               {row.map((col, colPos) => (
                 <div className='col' key={'col_' + colPos}>
-                  {!clickBoard[rowPos][colPos] ? (
+                  {!clickBoard[rowPos][colPos] && (
                     <div
                       className='closedCell'
                       onClick={() => handleClick(rowPos, colPos)}
                     >
                       &nbsp;
                     </div>
-                  ) : (
-                    <div className='openCell'>
+                  )}
+                  {clickBoard[rowPos][colPos] && (
+                    <div
+                      className={`openCell ${
+                        rowPos === clickedMine.row &&
+                        colPos === clickedMine.col &&
+                        'exploded'
+                      }`}
+                    >
                       {col === -1 ? (
                         <img src={mine} className='icon' alt='logo' />
                       ) : (
