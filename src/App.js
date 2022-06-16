@@ -26,7 +26,7 @@ function App() {
     if (gameRows && gameCols && mines) {
       setShowWarning(false);
       let board = createBoard();
-      let hiddenBoard = hideBoard(board);
+      let hiddenBoard = hideBoard([...board]);
       setClickBoard(hiddenBoard);
       let minePosList = [];
       let minesLeft = mines;
@@ -65,8 +65,11 @@ function App() {
   const hideBoard = (board) =>
     board.map((row) => row.map((col) => (col = false)));
 
-  const showBoard = (board) =>
+  const showBoard = () => {
+    let board = clickBoard;
     board.map((row) => row.map((col) => (col = true)));
+    setClickBoard(board);
+  };
 
   const shouldPutMine = (probability) => {
     return Math.random() * mines < probability;
@@ -148,14 +151,16 @@ function App() {
 
   const placeNumberOnBoard = (board, row, col) => {
     if (col >= 0 && col < gameCols) {
-      board[row][col] = checkForMine(board[row][col]);
+      board[row][col] = !cellHasMine(board[row][col])
+        ? board[row][col] + 1
+        : board[row][col];
     }
     return board;
   };
 
-  const checkForMine = (value) => {
-    return value !== -1 ? ++value : value;
-  };
+  const cellHasMine = (cellValue) => cellValue === -1;
+
+  const isCellEmpty = (cellValue) => cellValue === 0;
 
   const handleRowsChange = (event) => {
     setGameRows(+event.target.value);
@@ -175,7 +180,7 @@ function App() {
     // Easy Difficulty
     setGameRows(9);
     setGameCols(9);
-    setMines(10);
+    setMines(1);
   };
   const setGameMedium = () => {
     // Medium Difficulty
@@ -190,14 +195,83 @@ function App() {
     setMines(99);
   };
 
-  const isHidden = (row, col) => {
-    return clickBoard[row][col];
+  const notOutOfBounds = (row, col) => {
+    return row >= 0 && row < gameRows && col >= 0 && col < gameCols;
   };
 
-  const handleClick = (row, col) => {    
+  const isItself = (row, col, rowPos, colPos) => {
+    return rowPos === row && colPos === col;
+  };
+
+  const finishGame = () => {
+    showBoard();
+  };
+
+  const openCell = (row, col) => {
     let board = clickBoard;
     board[row][col] = true;
     setClickBoard([...board]);
+  };
+
+  const openAroundCell = (row, col) => {
+    let tempClickBoard = clickBoard;
+    tempClickBoard = openAroundCellRecursive(tempClickBoard, row, col);
+    setClickBoard(tempClickBoard);
+  };
+
+  const isCellClosed = (row, col) => clickBoard[row][col] === false;
+
+  const openAroundCellRecursive = (board, row, col, cellsToOpen = []) => {
+    let tempClickBoard = board;
+    // let tempCellsToOpenAround = cellsToOpen.filter(
+    //   (cell) => cell.row !== row && cell.col !== col
+    // );
+    let tempCellsToOpenAround = cellsToOpen;
+    tempClickBoard[row][col] = !tempClickBoard[row][col] && true;
+    for (let rowPos = row - 1; rowPos <= row + 1; rowPos++) {
+      for (let colPos = col - 1; colPos <= col + 1; colPos++) {
+        if (
+          notOutOfBounds(rowPos, colPos) &&
+          !isItself(row, col, rowPos, colPos) &&
+          clickBoard[rowPos][colPos] === false
+        ) {
+          if (isCellEmpty(gameBoard[rowPos][colPos])) {
+            tempCellsToOpenAround.push({ rowPos, colPos });
+          } else {
+            tempClickBoard[rowPos][colPos] =
+              !tempClickBoard[rowPos][colPos] && true;
+          }
+        }
+      }
+    }
+    tempCellsToOpenAround.forEach((cellToOpen) => {
+      if (isCellClosed(cellToOpen.rowPos, cellToOpen.colPos)) {
+        tempClickBoard = openAroundCellRecursive(
+          tempClickBoard,
+          cellToOpen.rowPos,
+          cellToOpen.colPos,
+          tempCellsToOpenAround
+        );
+      }
+    });
+    return tempClickBoard;
+  };
+
+  const handleClick = (row, col) => {
+    checkCell(row, col);
+    let board = clickBoard;
+    board[row][col] = true;
+    setClickBoard([...board]);
+  };
+
+  const checkCell = (row, col) => {
+    if (isCellEmpty(gameBoard[row][col])) {
+      openAroundCell(row, col);
+    } else if (!cellHasMine(gameBoard[row][col])) {
+      openCell(row, col);
+    } else {
+      finishGame();
+    }
   };
 
   return (
@@ -260,23 +334,24 @@ function App() {
             <div className='row game-row' key={'row_' + rowPos}>
               {row.map((col, colPos) => (
                 <div className='col' key={'col_' + colPos}>
-                {!clickBoard[rowPos][colPos]
-                ? (<div
-                    className='closedCell'
-                    onClick={() => handleClick(rowPos, colPos)}
-                  >
-                    &nbsp;
-                  </div>)
-                : (<div
-                    className='openCell'
-                  >
-                    {col === -1 ? (
-                      <img src={mine} className='icon' alt='logo' />
-                    ) : col !== 0 && (
-                      <span className={'color_' + col}>{col}</span>
-                    )}
-                  </div>)
-                }
+                  {!clickBoard[rowPos][colPos] ? (
+                    <div
+                      className='closedCell'
+                      onClick={() => handleClick(rowPos, colPos)}
+                    >
+                      &nbsp;
+                    </div>
+                  ) : (
+                    <div className='openCell'>
+                      {col === -1 ? (
+                        <img src={mine} className='icon' alt='logo' />
+                      ) : (
+                        col !== 0 && (
+                          <span className={'color_' + col}>{col}</span>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
