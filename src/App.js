@@ -15,17 +15,17 @@ function App() {
   const [gameRows, setGameRows] = useState(0);
   // eslint-disable-next-line
   const [gameCols, setGameCols] = useState(0);
-  const [mines, setMines] = useState(0);
-  const [flags, setFlags] = useState(0);
+  const [mineCounter, setMineCounter] = useState(0);
+  const [flagCounter, setFlagCounter] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
 
   const initGame = () => {
-    if (gameRows && gameCols && mines) {
+    if (gameRows && gameCols && mineCounter) {
       setShowWarning(false);
       let board = createBoard();
       let minePosList = [];
-      let minesLeft = mines;
-      const baseProbability = mines / (gameRows * gameCols);
+      let minesLeft = mineCounter;
+      const baseProbability = mineCounter / (gameRows * gameCols);
       let multiplier = 1;
       while (minesLeft > 0) {
         [board, minePosList, minesLeft, multiplier] = placeMines(
@@ -66,7 +66,7 @@ function App() {
   };
 
   const shouldPutMine = (probability) => {
-    return Math.random() * mines < probability;
+    return Math.random() * mineCounter < probability;
   };
 
   const placeMines = (
@@ -155,8 +155,8 @@ function App() {
   const handleMinesChange = (event) => {
     let maxMines = gameRows > 0 && gameCols > 0 ? gameRows * gameCols - 1 : 0;
     let mines = +event.target.value < maxMines ? +event.target.value : maxMines;
-    setMines(mines);
-    setFlags(mines);
+    setMineCounter(mines);
+    setFlagCounter(mines);
   };
 
   const addZeros = (number) => String(number).padStart(3, '0');
@@ -249,15 +249,26 @@ function App() {
 
   const handleRightClick = (event, cell) => {
     event.preventDefault();
-    cell.isFlagged = true;
+    cell.isFlagged = !cell.isFlagged;
     handleCellChange(cell);
+    recountFlags();
+  };
+
+  const recountFlags = () => {
+    let flagsUsed = 0;
+    gameBoard.forEach((row) => {
+      row.forEach((cell) => {
+        cell.isFlagged && ++flagsUsed;
+      });
+    });
+    setFlagCounter(mineCounter - flagsUsed);
   };
 
   const setGameDifficulty = (rows, cols, mines) => {
     setGameRows(rows);
     setGameCols(cols);
-    setMines(mines);
-    setFlags(mines);
+    setMineCounter(mines);
+    setFlagCounter(mines);
   };
 
   const getMaxRows = () => (window.innerHeight - 369) / 40;
@@ -293,7 +304,7 @@ function App() {
             name='mines'
             id='mines'
             placeholder='mines'
-            value={mines}
+            value={mineCounter}
             onChange={handleMinesChange}
           />
         </div>
@@ -324,7 +335,7 @@ function App() {
           {showWarning ? 'Fill all 3 fields if you want to play!' : ''}
         </div>
         <div className='row game-header'>
-          <div className='mines counter'>{addZeros(mines)}</div>
+          <div className='mines counter'>{addZeros(flagCounter)}</div>
           <div type='button' className='new-game-btn' onClick={initGame}>
             New Game
           </div>
