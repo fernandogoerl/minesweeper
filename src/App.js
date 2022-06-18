@@ -4,10 +4,6 @@ import flag from './icons/flag.svg';
 import './App.css';
 import React, { useEffect, useState } from 'react';
 
-const gameParams = {
-  timer: 999,
-};
-
 function App() {
   const [gameOn, setGameOn] = useState(false);
   const [gameBoard, setGameBoard] = useState([]);
@@ -66,6 +62,7 @@ function App() {
     setTimer(0);
     setTimerStarted(false);
     setShowWarning(false);
+    setFlagCounter(mineCounter);
   };
 
   const createBoard = () => {
@@ -275,7 +272,7 @@ function App() {
 
   const handleRightClick = (event, cell) => {
     event.preventDefault();
-    cell.isFlagged = !cell.isFlagged;
+    cell.isFlagged = !cell.isFlagged ? flagCounter > 0 : false;
     startTimer(cell);
     handleCellChange(cell);
     recountFlags();
@@ -299,7 +296,6 @@ function App() {
     setGameRows(rows);
     setGameCols(cols);
     setMineCounter(mines);
-    setFlagCounter(mines);
   };
 
   const getMaxRows = () => (window.innerHeight - 369) / 40;
