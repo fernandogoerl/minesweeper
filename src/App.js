@@ -2,7 +2,7 @@ import mine from './icons/mine.svg';
 import flaggedMine from './icons/flagged-mine.svg';
 import flag from './icons/flag.svg';
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const gameParams = {
   timer: 999,
@@ -18,8 +18,26 @@ function App() {
   const [mineCounter, setMineCounter] = useState(0);
   const [flagCounter, setFlagCounter] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [timerStarted, setTimerStarted] = useState(false);
+
+  useEffect(() => {
+    let timeCounter = null;
+    if (timerStarted) {
+      timeCounter = setInterval(() => {
+        setTimer((prevState) => prevState + 1);
+      }, 1000);
+      if (timer >= 999) {
+        clearInterval(timeCounter);
+      }
+    }
+    return () => {
+      clearInterval(timeCounter);
+    };
+  });
 
   const initGame = () => {
+    resetGame();
     if (gameRows && gameCols && mineCounter) {
       setShowWarning(false);
       let board = createBoard();
@@ -42,6 +60,12 @@ function App() {
     } else {
       setShowWarning(true);
     }
+  };
+
+  const resetGame = () => {
+    setTimer(0);
+    setTimerStarted(false);
+    setShowWarning(false);
   };
 
   const createBoard = () => {
@@ -167,6 +191,7 @@ function App() {
 
   const handleLeftClick = (cell) => {
     cell.clicked = true;
+    startTimer(cell);
     checkCell(cell);
   };
 
@@ -188,6 +213,7 @@ function App() {
   };
 
   const finishGame = () => {
+    setTimerStarted(false);
     showBoard();
   };
 
@@ -250,6 +276,7 @@ function App() {
   const handleRightClick = (event, cell) => {
     event.preventDefault();
     cell.isFlagged = !cell.isFlagged;
+    startTimer(cell);
     handleCellChange(cell);
     recountFlags();
   };
@@ -262,6 +289,10 @@ function App() {
       });
     });
     setFlagCounter(mineCounter - flagsUsed);
+  };
+
+  const startTimer = (cell) => {
+    !cell.hasMine && !timerStarted && setTimerStarted(true);
   };
 
   const setGameDifficulty = (rows, cols, mines) => {
@@ -339,7 +370,7 @@ function App() {
           <div type='button' className='new-game-btn' onClick={initGame}>
             New Game
           </div>
-          <div className='timer counter'>{addZeros(gameParams.timer)}</div>
+          <div className='timer counter'>{addZeros(timer)}</div>
         </div>
         <div className={`game-body ${gameOn && 'show-game'}`}>
           {gameBoard.map((row, index) => (
