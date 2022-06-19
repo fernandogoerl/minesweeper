@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/minesweeper/static/css/main.4ad40ec6.css",
+    "main.js": "/minesweeper/static/js/main.c6fcfa22.js",
+    "static/media/flagged-mine.svg": "/minesweeper/static/media/flagged-mine.8d893373574f906c97f9380ed9dfa1ab.svg",
+    "static/media/mine.svg": "/minesweeper/static/media/mine.6022806add7cf452b70b4bc33f538897.svg",
+    "index.html": "/minesweeper/index.html",
+    "static/media/flag.svg": "/minesweeper/static/media/flag.b4323933dc506e135c46b6ec751492d1.svg",
+    "main.4ad40ec6.css.map": "/minesweeper/static/css/main.4ad40ec6.css.map",
+    "main.c6fcfa22.js.map": "/minesweeper/static/js/main.c6fcfa22.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4ad40ec6.css",
+    "static/js/main.c6fcfa22.js"
+  ]
+}
