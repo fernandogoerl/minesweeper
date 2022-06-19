@@ -403,9 +403,9 @@ function App() {
               </div>
             </div>
           )}
-          <div className='row'>
-            <div className='col'></div>
-            {!difficulty && (
+          <div className='difficulty-control'>
+            {/* <div className='col'></div> */}
+            {difficulty === '' && (
               <div
                 type='button'
                 className='btn control-border'
@@ -414,51 +414,57 @@ function App() {
                 Select Difficulty
               </div>
             )}
-            {difficulty !== 'menu' && difficulty !== 'customMenu' && (
+            {difficulty !== '' &&
+              difficulty !== 'menu' &&
+              difficulty !== 'customMenu' && (
+                <div
+                  type='button'
+                  className='btn control-border'
+                  onClick={() =>
+                    difficulty === 'menu'
+                      ? setGameDifficulty('easy')
+                      : handleDifficultyMenu('menu')
+                  }
+                >
+                  {` Difficulty: ${
+                    difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+                  }`}
+                </div>
+              )}
+            {difficulty === 'menu' && (
               <div
                 type='button'
                 className='btn control-border'
-                onClick={() =>
-                  difficulty === 'menu'
-                    ? setGameDifficulty('easy')
-                    : handleDifficultyMenu('menu')
-                }
+                onClick={() => setGameDifficulty('easy')}
               >
-                {` Difficulty: ${
-                  difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
-                }`}
+                Easy
               </div>
             )}
             {difficulty === 'menu' && (
-              <div>
-                <div
-                  type='button'
-                  className='btn control-border'
-                  onClick={() => setGameDifficulty('easy')}
-                >
-                  Easy
-                </div>
-                <div
-                  type='button'
-                  className='btn control-border'
-                  onClick={() => setGameDifficulty('medium')}
-                >
-                  Medium
-                </div>
-                <div
-                  type='button'
-                  className='btn control-border'
-                  onClick={() => setGameDifficulty('hard')}
-                >
-                  Hard
-                </div>
-                <div
-                  type='button'
-                  className='btn control-border'
-                  onClick={() => handleDifficultyMenu('customMenu')}
-                >
-                  Custom
-                </div>
+              <div
+                type='button'
+                className='btn control-border'
+                onClick={() => setGameDifficulty('medium')}
+              >
+                Medium
+              </div>
+            )}
+            {difficulty === 'menu' && (
+              <div
+                type='button'
+                className='btn control-border'
+                onClick={() => setGameDifficulty('hard')}
+              >
+                Hard
+              </div>
+            )}
+            {difficulty === 'menu' && (
+              <div
+                type='button'
+                className='btn control-border'
+                onClick={() => handleDifficultyMenu('customMenu')}
+              >
+                Custom
               </div>
             )}
             {difficulty === 'customMenu' && (
@@ -470,7 +476,7 @@ function App() {
                 Save
               </div>
             )}
-            <div className='col'></div>
+            {/* <div className='col'></div> */}
           </div>
           <div className='warning'>
             {showWarning ? 'Fill all 3 fields if you want to play!' : ''}
@@ -489,7 +495,7 @@ function App() {
             </div>
           )}
         </div>
-        <div className={`game-body ${gameOn && 'show-game'}`}>
+        <div className={`game-body ${gameOn ? 'show-game' : ''}`}>
           {gameBoard.map((row, index) => (
             <div className='row game-row' key={'row_' + index}>
               {row.map((cell) => (

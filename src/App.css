@@ -53,6 +53,12 @@
   margin-left: 1rem;
 }
 
+article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .row {
   display: flex;
   flex-direction: row;
@@ -60,12 +66,17 @@
   align-items: center;
 }
 
-.game-header {
-  padding: 0 2rem;
+.difficulty-control {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.game-header .row {
-  flex-wrap: wrap;
+.game-header {
+  padding: 0 2rem;
+  width: 100%;
+  max-width: 600px;
 }
 
 .input-group {
@@ -118,8 +129,11 @@
 }
 
 .btn {
-  flex: 2;
-  margin: 1em;
+  flex: 1;
+  width: 100%;
+  min-width: 210px;
+  max-width: 210px;
+  margin: 0.5em;
   background-color: #282c34;
   transition: background-color 0.1s;
   cursor: pointer;
@@ -135,6 +149,14 @@
   border: 3px solid white;
 }
 
+.difficulty-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .game-body {
   display: flex;
   flex-direction: column;
@@ -143,25 +165,11 @@
   opacity: 0;
 }
 
-/* .game-body > :first-child {
-  border-top: 0.25em solid white;
-}
-
-.game-row {
-  border-bottom: 0.25em solid white;
-}
-
-.game-row > :first-child {
-  border-left: 0.25em solid white;
-} */
-
 .col {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 2.5rem;
-  width: 2.5rem;
 }
 
 .cell {
