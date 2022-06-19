@@ -60,18 +60,22 @@
   align-items: center;
 }
 
+.game-header {
+  padding: 0 2rem;
+}
+
+.game-header .row {
+  flex-wrap: wrap;
+}
+
 .input-group {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.input-group:first-child {
-  align-items: flex-end;
-}
-
 .custom-controls input {
-  max-width: 160px;
+  width: 10rem;
   flex: 1;
   background-color: transparent;
   color: white;
@@ -114,10 +118,8 @@
 }
 
 .btn {
-  flex: 1;
-  max-width: 10rem;
-  justify-content: space-between;
-  margin: 1em 0.5rem;
+  flex: 2;
+  margin: 1em;
   background-color: #282c34;
   transition: background-color 0.1s;
   cursor: pointer;
@@ -126,11 +128,6 @@
 .btn:hover {
   background-color: #535967;
   transition: background-color 0.1s;
-}
-
-.new-game-btn {
-  margin-left: 1rem;
-  margin-right: 1rem;
 }
 
 .control-border {
@@ -159,6 +156,15 @@
 } */
 
 .col {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.cell {
   flex: 1;
   display: flex;
   justify-content: center;
