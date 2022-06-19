@@ -13,6 +13,7 @@ function App() {
   const [gameCols, setGameCols] = useState(0);
   const [mineCounter, setMineCounter] = useState(0);
   const [flagCounter, setFlagCounter] = useState(0);
+  const [winCounter, setWinCounter] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
   const [timer, setTimer] = useState(0);
   const [timerStarted, setTimerStarted] = useState(false);
@@ -33,8 +34,8 @@ function App() {
   });
 
   const initGame = () => {
-    resetGame();
     if (gameRows && gameCols && mineCounter) {
+      resetGame();
       setShowWarning(false);
       let board = createBoard();
       let minePosList = [];
@@ -63,6 +64,7 @@ function App() {
     setTimerStarted(false);
     setShowWarning(false);
     setFlagCounter(mineCounter);
+    setWinCounter(gameRows * gameCols - mineCounter);
   };
 
   const createBoard = () => {
@@ -188,18 +190,21 @@ function App() {
 
   const handleLeftClick = (cell) => {
     cell.clicked = true;
+    handleCellChange(cell);
     startTimer(cell);
     checkCell(cell);
   };
 
   const checkCell = (cell) => {
-    if (!cell.value) {
-      openAroundCell(cell);
-    } else if (!cell.hasMine) {
-      openCell(cell);
+    if (cell.hasMine) {
+      lostGame();
     } else {
-      handleCellChange(cell);
-      finishGame();
+      if (!cell.value) {
+        openAroundCell(cell);
+      } else {
+        openCell(cell);
+      }
+      checkWin();
     }
   };
 
@@ -209,23 +214,9 @@ function App() {
     setGameBoard(board);
   };
 
-  const finishGame = () => {
-    setTimerStarted(false);
-    showBoard();
-  };
-
-  const showBoard = () => {
-    let board = [...gameBoard];
-    board.forEach((row) => {
-      row.forEach((cell) => {
-        cell.isOpen = true;
-      });
-    });
-    setGameBoard([...board]);
-  };
-
   const openCell = (cell) => {
     cell.isOpen = true;
+    setWinCounter((prevState) => prevState - 1);
     handleCellChange(cell);
   };
 
@@ -233,10 +224,12 @@ function App() {
     let board = [...gameBoard];
     board = openAroundCellRecursive(board, cell);
     setGameBoard(board);
+    return board;
   };
 
   const openAroundCellRecursive = (board, cellToOpen, cellsToOpen = []) => {
     cellToOpen.isOpen = true;
+    setWinCounter((prevState) => prevState - 1);
     board[cellToOpen.row][cellToOpen.col] = cellToOpen;
     for (
       let rowPos = cellToOpen.row - 1;
@@ -255,6 +248,7 @@ function App() {
               cellsToOpen.push(adjCell);
             } else {
               adjCell.isOpen = true;
+              setWinCounter((prevState) => prevState - 1);
               board[adjCell.row][adjCell.col] = adjCell;
             }
           }
@@ -268,6 +262,41 @@ function App() {
     });
     board[cellToOpen.row][cellToOpen.col] = cellToOpen;
     return board;
+  };
+
+  const lostGame = () => {
+    setTimerStarted(false);
+    showBoard();
+  };
+
+  const showBoard = () => {
+    let board = [...gameBoard];
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        cell.isOpen = true;
+      });
+    });
+    setGameBoard([...board]);
+  };
+
+  const checkWin = () => {
+    if (winCounter === 1) {
+      setTimerStarted(false);
+      flagMines();
+    }
+  };
+
+  const flagMines = () => {
+    const board = [...gameBoard];
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell.hasMine) {
+          cell.isFlagged = true;
+        }
+      });
+    });
+    setFlagCounter(0);
+    setGameBoard([...board]);
   };
 
   const handleRightClick = (event, cell) => {
@@ -309,64 +338,79 @@ function App() {
         <h2>Minesweeper</h2>
       </header>
       <article>
-        <div className='row custom-controls'>
-          <input
-            type='number'
-            name='rows'
-            id='rows'
-            placeholder='rows'
-            value={gameRows}
-            onChange={handleRowsChange}
-          />
-          <input
-            type='number'
-            name='cols'
-            id='cols'
-            placeholder='cols'
-            value={gameCols}
-            onChange={handleColsChange}
-          />
-          <input
-            type='number'
-            name='mines'
-            id='mines'
-            placeholder='mines'
-            value={mineCounter}
-            onChange={handleMinesChange}
-          />
-        </div>
-        <div className='row difficulty-controls'>
-          <div
-            type='button'
-            className='new-game-btn'
-            onClick={() => setGameDifficulty(9, 9, 15)}
-          >
-            Easy
+        <div className='game-header'>
+          <div className='row custom-controls'>
+            <div className='input-group'>
+              <label>Rows</label>
+              <input
+                type='number'
+                name='rows'
+                id='rows'
+                className='control-border'
+                value={gameRows}
+                onChange={handleRowsChange}
+              />
+            </div>
+            <div className='input-group'>
+              <label>Cols</label>
+              <input
+                type='number'
+                name='cols'
+                id='cols'
+                className='control-border'
+                value={gameCols}
+                onChange={handleColsChange}
+              />
+            </div>
+            <div className='input-group'>
+              <label>Mines</label>
+              <input
+                type='number'
+                name='mines'
+                id='mines'
+                className='control-border'
+                value={mineCounter}
+                onChange={handleMinesChange}
+              />
+            </div>
           </div>
-          <div
-            type='button'
-            className='new-game-btn'
-            onClick={() => setGameDifficulty(16, 16, 40)}
-          >
-            Medium
+          <div className='row difficulty-controls'>
+            <div
+              type='button'
+              className='btn control-border'
+              onClick={() => setGameDifficulty(9, 9, 5)}
+            >
+              Easy
+            </div>
+            <div
+              type='button'
+              className='btn control-border'
+              onClick={() => setGameDifficulty(16, 16, 40)}
+            >
+              Medium
+            </div>
+            <div
+              type='button'
+              className='btn control-border'
+              onClick={() => setGameDifficulty(16, 30, 99)}
+            >
+              Hard
+            </div>
           </div>
-          <div
-            type='button'
-            className='new-game-btn'
-            onClick={() => setGameDifficulty(16, 30, 99)}
-          >
-            Hard
+          <div className='warning'>
+            {showWarning ? 'Fill all 3 fields if you want to play!' : ''}
           </div>
-        </div>
-        <div className='warning'>
-          {showWarning ? 'Fill all 3 fields if you want to play!' : ''}
-        </div>
-        <div className='row game-header'>
-          <div className='mines counter'>{addZeros(flagCounter)}</div>
-          <div type='button' className='new-game-btn' onClick={initGame}>
-            New Game
+          <div className='row'>
+            <div className='mines counter'>{addZeros(flagCounter)}</div>
+            <div
+              type='button'
+              className='btn new-game-btn control-border'
+              onClick={initGame}
+            >
+              New Game
+            </div>
+            <div className='timer counter'>{addZeros(timer)}</div>
           </div>
-          <div className='timer counter'>{addZeros(timer)}</div>
         </div>
         <div className={`game-body ${gameOn && 'show-game'}`}>
           {gameBoard.map((row, index) => (
@@ -378,7 +422,7 @@ function App() {
                       className={`closed-cell ${
                         cell.clicked && cell.hasMine && 'exploded'
                       }`}
-                      onClick={() => handleLeftClick(cell)}
+                      onClick={() => !cell.isFlagged && handleLeftClick(cell)}
                       onContextMenu={(event) => handleRightClick(event, cell)}
                     >
                       {cell.isFlagged ? (
