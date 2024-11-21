@@ -195,6 +195,10 @@ article {
   width: 100%;
 }
 
+.closed-cell:hover {
+  background-color: #525760;
+}
+
 .closed-cell {
   box-sizing: border-box;
   /* background-color: #191b1f; */
